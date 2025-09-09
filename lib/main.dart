@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fclhackathon_team9/core/bindings/app_bindings.dart';
+import 'package:fclhackathon_team9/core/theme/app_theme.dart';
+import 'package:fclhackathon_team9/modules/combined/views/combined_screens.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(const AppRoot());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class AppRoot extends StatelessWidget {
+  const AppRoot({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+    return GetMaterialApp(
+      title: 'Travel wallet value',
+      debugShowCheckedModeBanner: false,
+      initialBinding: AppBindings(),
+      theme: AppTheme.light,
+      home: const CombinedScreens(),
     );
   }
 }
