@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:fclhackathon_team9/core/constants/app_strings.dart';
 import 'package:fclhackathon_team9/modules/profile/models/profile_models.dart';
 
 class ProfileController extends GetxController {
@@ -106,6 +105,7 @@ class ProfileController extends GetxController {
   }
 
   void addFriend() {
+    Get.snackbar("In development", "This feature is not available yet");
     // Implement add friend logic
     // This could open a friend search or QR scanner
   }

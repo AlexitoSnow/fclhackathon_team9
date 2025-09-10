@@ -296,7 +296,9 @@ class ProfileView extends StatelessWidget {
         : AppColors.primaryGreen;
 
     return OutlinedButton(
-      onPressed: onPressed,
+      onPressed: () {
+        Get.snackbar("In development", "This feature is not available yet");
+      },
       style: OutlinedButton.styleFrom(
         side: const BorderSide(color: AppColors.primaryGreen, width: 1.5),
         shape: RoundedRectangleBorder(
