@@ -24,19 +24,11 @@ class CombinedScreens extends StatelessWidget {
     ];
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Obx(() => pages[controller.currentIndex.value]),
-      ),
+      body: SafeArea(child: Obx(() => pages[controller.currentIndex.value])),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(color: AppColors.primaryDark),
         height: context.heightUnit * AppDimensions.bottomNavHeightUnit,
-        child: SafeArea(
-          top: false,
-          child: BottomNavBar(
-            currentIndex: controller.currentIndex.value,
-            onTap: controller.setIndex,
-          ),
-        ),
+        child: SafeArea(top: false, child: const BottomNavBar()),
       ),
     );
   }
