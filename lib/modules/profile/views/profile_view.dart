@@ -394,93 +394,11 @@ class ProfileView extends StatelessWidget {
   Widget _buildTrophyIcon(BuildContext context, ProfileController controller) {
     final h = context.heightUnit;
 
-    return Column(
-      children: [
-        // Trophy Top - Dark circular metallic part
-        Container(
-          width: h * 5,
-          height: h * 5,
-          decoration: BoxDecoration(
-            color: const Color(0xFF2C3E50), // Dark metallic like in image
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: h * 0.8,
-                offset: Offset(0, h * 0.3),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Bronze Stage',
-                style: TextStyle(
-                  color: AppColors.white,
-                  fontSize: h * 0.9,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Complete 2.5M Steps',
-                style: TextStyle(color: AppColors.white, fontSize: h * 0.7),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: h * 0.2),
-        // Trophy Base - Wooden base with metallic plaque
-        Container(
-          width: h * 4,
-          height: h * 1.8,
-          decoration: BoxDecoration(
-            color: const Color(0xFF8B4513), // Brown wood base
-            borderRadius: BorderRadius.circular(h * 0.3),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: h * 0.5,
-                offset: Offset(0, h * 0.2),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              // Metallic plaque on front
-              Positioned(
-                top: h * 0.2,
-                left: h * 0.3,
-                right: h * 0.3,
-                child: Container(
-                  height: h * 1.2,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFCD7F32), // Bronze metallic
-                    borderRadius: BorderRadius.circular(h * 0.2),
-                    border: Border.all(
-                      color: const Color(0xFFB8860B), // Gold border
-                      width: 0.5,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Krystal Patel',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: h * 0.7,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+    return Image.asset(
+      'assets/images/trophy.png',
+      width: h * 6,
+      height: h * 6,
+      fit: BoxFit.contain,
     );
   }
 
