@@ -11,4 +11,8 @@ class AppColors {
   static const Color white = Colors.white;
   static const Color black = Colors.black;
   static const Color transparent = Colors.transparent;
+  static const Color primaryText = Color(0xFF153B44);
+  static const Color secondaryText = Color(0xFF6B8A92);
+  static const Color errorRed = Color(0xFFFF4D4D);
+  static const Color fieldBg = Color(0xFFF5F7F8);
 }
