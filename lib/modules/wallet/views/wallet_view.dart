@@ -4,9 +4,6 @@ import 'package:fclhackathon_team9/core/constants/app_colors.dart';
 import 'package:fclhackathon_team9/core/constants/app_dimensions.dart';
 import 'package:fclhackathon_team9/core/constants/app_strings.dart';
 import 'package:fclhackathon_team9/modules/wallet/controllers/wallet_controller.dart';
-import 'package:fclhackathon_team9/modules/wallet/widgets/balance_pill.dart';
-import 'package:fclhackathon_team9/modules/wallet/widgets/total_value_card.dart';
-import 'package:fclhackathon_team9/modules/wallet/widgets/earnings_card.dart';
 import 'package:fclhackathon_team9/modules/notifications/views/notifications_view.dart';
 import 'package:fclhackathon_team9/modules/transactions/views/transactions_view.dart';
 import 'package:fclhackathon_team9/utils/extensions/context_extensions.dart'
@@ -18,81 +15,48 @@ class WalletView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final WalletController controller = Get.put(WalletController());
-    final isPortrait = ContextExtensionss(context).isPortrait;
-    final horizontalPadding = context.widthUnit * 4.6;
-    final topSpacing = context.heightUnit * 6.9;
+    final h = context.heightUnit;
+    final w = context.widthUnit;
+    final horizontalPadding = w * 5;
+    final topSpacing = h * 8;
 
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: topSpacing),
+        // Top section with balance pill and notification bell
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Obx(
-                () => BalancePill(
-                  amountText: controller.balanceText,
-                  onTap: () {
-                    controller.openTransactions();
-                    Get.to(
-                      () => const TransactionsView(),
-                      transition: Transition.cupertino,
-                    );
-                  },
-                ),
-              ),
-            ),
-            SizedBox(width: context.widthUnit * 4.0),
-            SizedBox(
-              width: isPortrait
-                  ? context.widthUnit * 22.0
-                  : context.widthUnit * 15.0,
-              child: _NotificationPill(
-                onTap: () {
-                  controller.openNotifications();
-                  Get.to(
-                    () => const NotificationsView(),
-                    transition: Transition.cupertino,
-                  );
-                },
-              ),
-            ),
+            Expanded(child: Obx(() => _buildBalancePill(context, controller))),
+            SizedBox(width: w * 4),
+            _buildNotificationBell(context, controller),
           ],
         ),
-        SizedBox(height: context.heightUnit * 4.5),
+        SizedBox(height: h * 6),
+        // Total Wallet Value section
         Text(
           AppStrings.totalWalletValue,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
-            fontSize: context.heightUnit * 2.6,
+            fontSize: h * 2.6,
           ),
         ),
-        SizedBox(height: context.heightUnit * 1.4),
-        Obx(
-          () => TotalValueCard(
-            amountText: controller.balanceText,
-            subtitle: AppStrings.claimAtEnd,
-          ),
-        ),
-        SizedBox(height: context.heightUnit * 4.5),
+        SizedBox(height: h * 2),
+        Obx(() => _buildTotalValueCard(context, controller)),
+        SizedBox(height: h * 6),
+        // Earning this month section
         Text(
           AppStrings.earningThisMonth,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
-            fontSize: context.heightUnit * 2.6,
+            fontSize: h * 2.6,
           ),
         ),
-        SizedBox(height: context.heightUnit * 1.4),
-        Obx(
-          () => EarningsCard(
-            progress: controller.progress,
-            progressLabel: controller.earningsText,
-          ),
-        ),
-        SizedBox(height: context.heightUnit * 2.0),
+        SizedBox(height: h * 2),
+        Obx(() => _buildEarningsCard(context, controller)),
+        SizedBox(height: h * 4),
       ],
     );
 
@@ -124,33 +88,161 @@ class WalletView extends StatelessWidget {
       ),
     );
   }
-}
 
-class _NotificationPill extends StatelessWidget {
-  final VoidCallback onTap;
-  const _NotificationPill({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildBalancePill(BuildContext context, WalletController controller) {
     final h = context.heightUnit;
-    final radius = h * AppDimensions.radiusUnit;
-    final height = h * AppDimensions.pillHeightUnit;
-    return Material(
-      color: AppColors.primaryGreen,
-      borderRadius: BorderRadius.circular(radius),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          height: height,
-          child: Center(
-            child: Icon(
-              Icons.notifications_none_rounded,
+    final w = context.widthUnit;
+
+    return GestureDetector(
+      onTap: () {
+        controller.openTransactions();
+        Get.to(
+          () => const TransactionsView(),
+          transition: Transition.cupertino,
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: w * 4, vertical: h * 1.5),
+        decoration: BoxDecoration(
+          color: AppColors.primaryGreen,
+          borderRadius: BorderRadius.circular(h * 2),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.attach_money,
+              color: AppColors.primaryDark,
+              size: h * 2.5,
+            ),
+            SizedBox(width: w * 2),
+            Text(
+              controller.balanceText,
+              style: TextStyle(
+                color: AppColors.primaryDark,
+                fontWeight: FontWeight.bold,
+                fontSize: h * 2.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationBell(
+    BuildContext context,
+    WalletController controller,
+  ) {
+    final h = context.heightUnit;
+
+    return GestureDetector(
+      onTap: () {
+        controller.openNotifications();
+        Get.to(
+          () => const NotificationsView(),
+          transition: Transition.cupertino,
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(h * 1.2),
+        decoration: BoxDecoration(
+          color: AppColors.primaryGreen,
+          borderRadius: BorderRadius.circular(h * 1.5),
+        ),
+        child: Icon(
+          Icons.notifications,
+          color: AppColors.primaryDark,
+          size: h * 3,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTotalValueCard(
+    BuildContext context,
+    WalletController controller,
+  ) {
+    final h = context.heightUnit;
+
+    return Container(
+      padding: EdgeInsets.all(h * 3),
+      decoration: BoxDecoration(
+        color: AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(h * 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '\$${controller.balanceText}',
+            style: TextStyle(
               color: AppColors.textPrimary,
-              size: h * (AppDimensions.iconUnit + 0.8),
+              fontWeight: FontWeight.bold,
+              fontSize: h * 4.5,
             ),
           ),
-        ),
+          SizedBox(height: h * 1),
+          Text(
+            AppStrings.claimAtEnd,
+            style: TextStyle(color: AppColors.textSecondary, fontSize: h * 1.8),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEarningsCard(BuildContext context, WalletController controller) {
+    final h = context.heightUnit;
+
+    return Container(
+      padding: EdgeInsets.all(h * 3),
+      decoration: BoxDecoration(
+        color: AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(h * 2),
+      ),
+      child: Column(
+        children: [
+          Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              LinearProgressIndicator(
+                value: controller.progress,
+                minHeight: h * 2.5,
+                backgroundColor: AppColors.trackGrey,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryGreen,
+                ),
+                borderRadius: BorderRadius.circular(h * 1.25),
+              ),
+              Container(
+                padding: EdgeInsets.all(h * 0.5),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.primaryGreen, width: 2),
+                ),
+                child: Icon(
+                  Icons.attach_money,
+                  color: AppColors.primaryGreen,
+                  size: h * 2.5,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: h * 1.5),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              controller.earningsText,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: h * 1.8,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
