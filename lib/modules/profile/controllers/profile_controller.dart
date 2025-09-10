@@ -110,11 +110,12 @@ class ProfileController extends GetxController {
     // This could open a friend search or QR scanner
   }
 
-  String get stepsText => '${_userProfile.value.steps} ${AppStrings.stepsGoal}';
-  String get followersText =>
-      '${_userProfile.value.followers} ${AppStrings.followers}';
-  String get followingText =>
-      '${_userProfile.value.following} ${AppStrings.following}';
-  String get trophyStepsText =>
-      '${_trophyProgress.value.currentSteps} ${AppStrings.stepsGoal}';
+  String get stepsText => '${_userProfile.value.steps} Steps';
+  String get followersText => '${_userProfile.value.followers} followers';
+  String get followingText => '${_userProfile.value.following} following';
+  String get trophyStepsText => '${_trophyProgress.value.currentSteps} Steps';
+
+  // Progress percentage for trophy
+  double get trophyProgressPercentage =>
+      _trophyProgress.value.currentSteps / _trophyProgress.value.targetSteps;
 }

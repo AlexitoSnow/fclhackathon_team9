@@ -12,7 +12,6 @@ class ProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     final ProfileController controller = Get.put(ProfileController());
     final h = context.heightUnit;
-    final w = context.widthUnit;
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -20,47 +19,20 @@ class ProfileView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(w * 5, h * 2, w * 5, h * 1.5),
-              child: Text(
-                AppStrings.myProfile,
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: h * 2.8,
-                ),
-              ),
-            ),
+            // Profile Header Section
             _buildProfileHeader(context, controller),
-            _buildProfileDetails(context, controller),
-            SizedBox(height: h * 3),
-            _buildSection(
-              context: context,
-              title: AppStrings.progressToEarnTrophy,
-              actionText: AppStrings.learnMore,
-              child: _buildTrophyProgressCard(context, controller),
-            ),
-            SizedBox(height: h * 3),
-            _buildSection(
-              context: context,
-              title: AppStrings.friends,
-              actionText: AppStrings.viewAll,
-              child: _buildFriendsSection(context),
-            ),
-            SizedBox(height: h * 3),
-            _buildSection(
-              context: context,
-              title: AppStrings.monthlyBadges,
-              actionText: AppStrings.viewAll,
-              child: const SizedBox.shrink(), // Placeholder
-            ),
-            SizedBox(height: h * 3),
-            _buildSection(
-              context: context,
-              title: AppStrings.achievements,
-              actionText: AppStrings.viewAll,
-              child: _buildAchievements(context, controller),
-            ),
+            SizedBox(height: h * 4),
+            // Progress to Earn Trophy Section
+            _buildTrophySection(context, controller),
+            SizedBox(height: h * 4),
+            // Friends Section
+            _buildFriendsSection(context, controller),
+            SizedBox(height: h * 4),
+            // Monthly Badges Section
+            _buildMonthlyBadgesSection(context, controller),
+            SizedBox(height: h * 4),
+            // Achievements Section
+            _buildAchievementsSection(context, controller),
             SizedBox(height: h * 5),
           ],
         ),
@@ -74,113 +46,152 @@ class ProfileView extends StatelessWidget {
   ) {
     final h = context.heightUnit;
     final w = context.widthUnit;
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: w * 4),
+
+    return Padding(
       padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
-      decoration: BoxDecoration(
-        color: AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(h * 2),
-      ),
       child: Obx(
-        () => Row(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: h * 5,
-              backgroundColor: AppColors.primaryGreen,
-              // Placeholder for user image
-              child: Icon(Icons.person, size: h * 6, color: AppColors.white),
+            // Profile Picture and Basic Info
+            Row(
+              children: [
+                // Profile Picture
+                CircleAvatar(
+                  radius: h * 6,
+                  backgroundColor: AppColors.primaryGreen,
+                  child: Icon(
+                    Icons.person,
+                    size: h * 8,
+                    color: AppColors.white,
+                  ),
+                ),
+                SizedBox(width: w * 4),
+                // Name and Username
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.userProfile.name,
+                        style: TextStyle(
+                          fontSize: h * 2.8,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: h * 0.5),
+                      Text(
+                        controller.userProfile.username,
+                        style: TextStyle(
+                          fontSize: h * 1.8,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: w * 4),
+            SizedBox(height: h * 2),
+            // Bio
             Text(
-              controller.userProfile.name,
-              style: TextStyle(
-                fontSize: h * 2.5,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
+              controller.userProfile.bio,
+              style: TextStyle(fontSize: h * 1.8, color: AppColors.textPrimary),
             ),
+            SizedBox(height: h * 3),
+            // Stats Row
+            _buildStatsRow(context, controller),
+            SizedBox(height: h * 3),
+            // Action Buttons
+            _buildActionButtons(context, controller),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileDetails(
-    BuildContext context,
-    ProfileController controller,
-  ) {
-    final h = context.heightUnit;
-    final w = context.widthUnit;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: w * 6, vertical: h * 2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Obx(
-            () => Text(
-              controller.userProfile.username,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: h * 1.8,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          SizedBox(height: h * 0.5),
-          Obx(
-            () => Text(
-              controller.userProfile.bio,
-              style: TextStyle(color: AppColors.textPrimary, fontSize: h * 1.8),
-            ),
-          ),
-          SizedBox(height: h * 2.5),
-          _buildStatsRow(context, controller),
-          SizedBox(height: h * 2.5),
-          _buildActionButtons(context, controller),
-        ],
-      ),
-    );
-  }
-
   Widget _buildStatsRow(BuildContext context, ProfileController controller) {
+    final h = context.heightUnit;
+
     return Obx(
       () => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(context, controller.stepsText, AppStrings.stepsGoal),
-          _buildStatItem(
-            context,
-            controller.followersText,
-            AppStrings.followers,
+          // Steps
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  '${controller.userProfile.steps}',
+                  style: TextStyle(
+                    fontSize: h * 3.2,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: h * 0.5),
+                Text(
+                  'Steps',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: h * 1.6,
+                  ),
+                ),
+              ],
+            ),
           ),
-          _buildStatItem(
-            context,
-            controller.followingText,
-            AppStrings.following,
+          // Divider
+          Container(height: h * 4, width: 1, color: AppColors.trackGrey),
+          // Followers
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  '${controller.userProfile.followers}',
+                  style: TextStyle(
+                    fontSize: h * 3.2,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: h * 0.5),
+                Text(
+                  'followers',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: h * 1.6,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Divider
+          Container(height: h * 4, width: 1, color: AppColors.trackGrey),
+          // Following
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  '${controller.userProfile.following}',
+                  style: TextStyle(
+                    fontSize: h * 3.2,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                SizedBox(height: h * 0.5),
+                Text(
+                  'following',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: h * 1.6,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStatItem(BuildContext context, String value, String label) {
-    final h = context.heightUnit;
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: h * 2.2,
-            fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        SizedBox(height: h * 0.5),
-        Text(
-          label,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: h * 1.6),
-        ),
-      ],
     );
   }
 
@@ -189,24 +200,31 @@ class ProfileView extends StatelessWidget {
     ProfileController controller,
   ) {
     final h = context.heightUnit;
+    final w = context.widthUnit;
+
     return Row(
       children: [
+        // Edit Profile Button
         Expanded(
           child: _buildOutlinedButton(
             context,
             AppStrings.editProfile,
             controller.editProfile,
+            isLightGreen: true,
           ),
         ),
-        SizedBox(width: context.widthUnit * 2),
+        SizedBox(width: w * 3),
+        // Share Profile Button
         Expanded(
           child: _buildOutlinedButton(
             context,
             AppStrings.shareProfile,
             controller.shareProfile,
+            isLightGreen: false,
           ),
         ),
-        SizedBox(width: context.widthUnit * 2),
+        SizedBox(width: w * 3),
+        // Add Friend Button
         GestureDetector(
           onTap: controller.addFriend,
           child: Container(
@@ -230,9 +248,14 @@ class ProfileView extends StatelessWidget {
   Widget _buildOutlinedButton(
     BuildContext context,
     String label,
-    VoidCallback onPressed,
-  ) {
+    VoidCallback onPressed, {
+    required bool isLightGreen,
+  }) {
     final h = context.heightUnit;
+    final textColor = isLightGreen
+        ? AppColors.textSecondary
+        : AppColors.primaryGreen;
+
     return OutlinedButton(
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
@@ -245,7 +268,7 @@ class ProfileView extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: AppColors.primaryGreen,
+          color: textColor,
           fontWeight: FontWeight.bold,
           fontSize: h * 1.8,
         ),
@@ -253,32 +276,32 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildSection({
-    required BuildContext context,
-    required String title,
-    required String actionText,
-    required Widget child,
-  }) {
+  Widget _buildTrophySection(
+    BuildContext context,
+    ProfileController controller,
+  ) {
     final h = context.heightUnit;
     final w = context.widthUnit;
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: w * 6),
+      padding: EdgeInsets.symmetric(horizontal: w * 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Section Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                title,
+                AppStrings.progressToEarnTrophy,
                 style: TextStyle(
-                  fontSize: h * 2.2,
+                  fontSize: h * 2.4,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
                 ),
               ),
               Text(
-                actionText,
+                AppStrings.learnMore,
                 style: TextStyle(
                   fontSize: h * 1.8,
                   fontWeight: FontWeight.w500,
@@ -287,8 +310,9 @@ class ProfileView extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: h * 1.5),
-          child,
+          SizedBox(height: h * 3),
+          // Progress Bar and Trophy
+          Obx(() => _buildTrophyProgressCard(context, controller)),
         ],
       ),
     );
@@ -300,95 +324,256 @@ class ProfileView extends StatelessWidget {
   ) {
     final h = context.heightUnit;
     final w = context.widthUnit;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: w * 4, vertical: h * 2),
-      decoration: BoxDecoration(
-        color: AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(h * 1.5),
-      ),
-      child: Obx(
-        () => Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: w * 3, vertical: h * 1),
-              decoration: BoxDecoration(
-                color: AppColors.primaryDark,
-                borderRadius: BorderRadius.circular(h * 1),
-              ),
-              child: Text(
-                controller.trophyStepsText,
-                style: TextStyle(
+
+    return Row(
+      children: [
+        // Progress Pill
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: w * 4, vertical: h * 1.5),
+          decoration: BoxDecoration(
+            color: AppColors.primaryDark,
+            borderRadius: BorderRadius.circular(h * 2),
+          ),
+          child: Text(
+            controller.trophyStepsText,
+            style: TextStyle(
+              color: AppColors.white,
+              fontSize: h * 1.8,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        SizedBox(width: w * 4),
+        // Trophy Image and Info
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Trophy Icon
+              Container(
+                width: h * 8,
+                height: h * 8,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFCD7F32), // Bronze color
+                  borderRadius: BorderRadius.circular(h * 1),
+                ),
+                child: Icon(
+                  Icons.emoji_events,
                   color: AppColors.white,
+                  size: h * 5,
+                ),
+              ),
+              SizedBox(height: h * 1),
+              // Trophy Info
+              Text(
+                controller.trophyProgress.stage,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
                   fontSize: h * 1.6,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            // Placeholder for badge
-            Column(
-              children: [
-                Icon(Icons.shield, color: AppColors.trackGrey, size: h * 4),
-                Text(
-                  controller.trophyProgress.stage,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: h * 1.4,
-                  ),
+              Text(
+                controller.trophyProgress.stageDescription,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: h * 1.4,
                 ),
-                Text(
-                  controller.trophyProgress.stageDescription,
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: h * 1.4,
-                  ),
+              ),
+              Text(
+                controller.userProfile.name,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: h * 1.4,
                 ),
-              ],
-            ),
-          ],
+              ),
+              SizedBox(height: h * 0.5),
+              Text(
+                controller.trophyProgress.stageDescription,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: h * 1.6,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildFriendsSection(BuildContext context) {
-    final h = context.heightUnit;
-    return CircleAvatar(
-      radius: h * 3.5,
-      backgroundColor: AppColors.primaryDark,
-      child: Icon(Icons.add, color: AppColors.white, size: h * 4),
-    );
-  }
-
-  Widget _buildAchievements(
+  Widget _buildFriendsSection(
     BuildContext context,
     ProfileController controller,
   ) {
     final h = context.heightUnit;
     final w = context.widthUnit;
-    return Obx(
-      () => Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: controller.achievements.map((achievement) {
-          return Container(
-            width: w * 15,
-            height: w * 15,
-            margin: EdgeInsets.only(right: w * 3),
-            decoration: BoxDecoration(
-              color: achievement.isUnlocked
-                  ? AppColors.primaryGreen
-                  : AppColors.lightSurface,
-              borderRadius: BorderRadius.circular(h * 1.5),
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: w * 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppStrings.friends,
+                style: TextStyle(
+                  fontSize: h * 2.4,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                AppStrings.viewAll,
+                style: TextStyle(
+                  fontSize: h * 1.8,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: h * 3),
+          // Add Friend Button
+          Center(
+            child: GestureDetector(
+              onTap: controller.addFriend,
+              child: CircleAvatar(
+                radius: h * 4,
+                backgroundColor: AppColors.primaryDark,
+                child: Icon(Icons.add, color: AppColors.white, size: h * 5),
+              ),
             ),
-            child: Icon(
-              achievement.isUnlocked ? Icons.check : Icons.lock,
-              color: achievement.isUnlocked
-                  ? AppColors.primaryDark
-                  : AppColors.trackGrey,
-              size: h * 4,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMonthlyBadgesSection(
+    BuildContext context,
+    ProfileController controller,
+  ) {
+    final h = context.heightUnit;
+    final w = context.widthUnit;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: w * 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppStrings.monthlyBadges,
+                style: TextStyle(
+                  fontSize: h * 2.4,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                AppStrings.viewAll,
+                style: TextStyle(
+                  fontSize: h * 1.8,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: h * 3),
+          // Monthly Badges Grid
+          Row(
+            children: List.generate(4, (index) {
+              return Container(
+                width: w * 18,
+                height: w * 18,
+                margin: EdgeInsets.only(right: w * 3),
+                decoration: BoxDecoration(
+                  color: AppColors.lightSurface,
+                  borderRadius: BorderRadius.circular(h * 1.5),
+                ),
+                child: Icon(
+                  Icons.lock,
+                  color: AppColors.trackGrey,
+                  size: h * 4,
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAchievementsSection(
+    BuildContext context,
+    ProfileController controller,
+  ) {
+    final h = context.heightUnit;
+    final w = context.widthUnit;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: w * 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppStrings.achievements,
+                style: TextStyle(
+                  fontSize: h * 2.4,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                AppStrings.viewAll,
+                style: TextStyle(
+                  fontSize: h * 1.8,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.primaryGreen,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: h * 3),
+          // Achievements Grid
+          Obx(
+            () => Row(
+              children: controller.achievements.map((achievement) {
+                return Container(
+                  width: w * 18,
+                  height: w * 18,
+                  margin: EdgeInsets.only(right: w * 3),
+                  decoration: BoxDecoration(
+                    color: achievement.isUnlocked
+                        ? AppColors.primaryGreen
+                        : AppColors.lightSurface,
+                    borderRadius: BorderRadius.circular(h * 1.5),
+                  ),
+                  child: Icon(
+                    achievement.isUnlocked ? Icons.check : Icons.lock,
+                    color: achievement.isUnlocked
+                        ? AppColors.primaryDark
+                        : AppColors.trackGrey,
+                    size: h * 4,
+                  ),
+                );
+              }).toList(),
             ),
-          );
-        }).toList(),
+          ),
+        ],
       ),
     );
   }

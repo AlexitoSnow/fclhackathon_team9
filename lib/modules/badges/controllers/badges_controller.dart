@@ -98,4 +98,9 @@ class BadgesController extends GetxController {
   String get earningsText =>
       '\$${_monthlyEarnings.value.currentEarnings.toInt()} / \$${_monthlyEarnings.value.targetEarnings.toInt()}';
   double get earningsProgress => _monthlyEarnings.value.progress;
+
+  // Reactive getters for Obx
+  String get earningsTextRx =>
+      '\$${_monthlyEarnings.value.currentEarnings.toInt()} / \$${_monthlyEarnings.value.targetEarnings.toInt()}';
+  double get earningsProgressRx => _monthlyEarnings.value.progress;
 }

@@ -21,71 +21,66 @@ class BadgesView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              AppStrings.streak,
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: h * 2.8,
-              ),
-            ),
-            SizedBox(height: h * 2),
-            _buildLockedBadges(context, controller),
-            SizedBox(height: h * 3),
-            _buildCalendar(context, controller),
-            SizedBox(height: h * 3),
-            _buildEarnings(context, controller),
+            // Header section with locked badges
+            _buildHeaderSection(context, controller),
+            SizedBox(height: h * 4),
+            // Calendar section
+            _buildCalendarSection(context, controller),
+            SizedBox(height: h * 4),
+            // Earnings section
+            _buildEarningsSection(context, controller),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLockedBadges(BuildContext context, BadgesController controller) {
+  Widget _buildHeaderSection(
+    BuildContext context,
+    BadgesController controller,
+  ) {
     final h = context.heightUnit;
-    final w = context.widthUnit;
+
     return Container(
-      padding: EdgeInsets.symmetric(vertical: h * 2, horizontal: w * 4),
+      height: h * 25, // Header section height
       decoration: BoxDecoration(
         color: AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(h * 1.5),
+        borderRadius: BorderRadius.circular(h * 2),
       ),
-      child: Obx(
-        () => Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: controller.lockedBadges.map((badge) {
-            return _buildLockedBadgeItem(context, badge.isUnlocked);
-          }).toList(),
+      child: Center(
+        child: Obx(
+          () => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: controller.lockedBadges.map((badge) {
+              return _buildHexagonalBadge(context, badge.isUnlocked);
+            }).toList(),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildLockedBadgeItem(BuildContext context, bool isUnlocked) {
+  Widget _buildHexagonalBadge(BuildContext context, bool isUnlocked) {
     final h = context.heightUnit;
     final w = context.widthUnit;
+
     return Container(
-      width: w * 25,
-      height: w * 25,
+      width: w * 20,
+      height: w * 20,
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(h * 1.5),
-        border: Border.all(
-          color: isUnlocked ? AppColors.primaryGreen : AppColors.trackGrey,
-          style: BorderStyle.solid,
-        ),
+        borderRadius: BorderRadius.circular(h * 2),
+        border: Border.all(color: AppColors.trackGrey, width: 1),
       ),
-      child: Icon(
-        isUnlocked ? Icons.check : Icons.lock,
-        color: isUnlocked ? AppColors.primaryGreen : AppColors.trackGrey,
-        size: h * 5,
-      ),
+      child: Icon(Icons.lock, color: AppColors.trackGrey, size: h * 4),
     );
   }
 
-  Widget _buildCalendar(BuildContext context, BadgesController controller) {
+  Widget _buildCalendarSection(
+    BuildContext context,
+    BadgesController controller,
+  ) {
     final h = context.heightUnit;
-    final w = context.widthUnit;
     final daysOfWeek = [
       AppStrings.sun,
       AppStrings.mon,
@@ -97,17 +92,18 @@ class BadgesView extends StatelessWidget {
     ];
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Month title
         Text(
           AppStrings.september,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: h * 2.2,
+            fontSize: h * 2.4,
           ),
         ),
-        SizedBox(height: h * 2),
+        SizedBox(height: h * 3),
+        // Days of week
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: daysOfWeek
@@ -123,112 +119,143 @@ class BadgesView extends StatelessWidget {
               )
               .toList(),
         ),
-        SizedBox(height: h * 1.5),
-        Obx(
-          () => Wrap(
-            spacing: w * 4.5,
-            runSpacing: h * 1.5,
-            children: controller.calendarDays.map((day) {
-              if (!day.isCurrentMonth) {
-                // Empty days at the beginning and end
-                return SizedBox(width: h * 3.5, height: h * 3.5);
-              }
+        SizedBox(height: h * 2),
+        // Activity grid
+        _buildActivityGrid(context, controller),
+      ],
+    );
+  }
+
+  Widget _buildActivityGrid(BuildContext context, BadgesController controller) {
+    final h = context.heightUnit;
+
+    // Create 6 rows with 7 circles each (42 total circles)
+    return Column(
+      children: List.generate(6, (rowIndex) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: h * 1.5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(7, (colIndex) {
+              final dayIndex = rowIndex * 7 + colIndex;
+              final isActive = dayIndex < 36; // First 36 days are active
 
               return Container(
                 width: h * 3.5,
                 height: h * 3.5,
                 decoration: BoxDecoration(
-                  color: day.isCompleted
-                      ? AppColors.primaryGreen
-                      : const Color(
-                          0xFFFDDDBB,
-                        ), // Light orange color from image
+                  color: isActive
+                      ? const Color(0xFFFDDDBB) // Light orange/peach color
+                      : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
-                child: day.isCompleted
-                    ? Icon(
-                        Icons.check,
-                        color: AppColors.primaryDark,
-                        size: h * 2,
-                      )
-                    : null,
               );
-            }).toList(),
+            }),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildEarningsSection(
+    BuildContext context,
+    BadgesController controller,
+  ) {
+    final h = context.heightUnit;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section title
+        Text(
+          AppStrings.earningThisMonth,
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: h * 2.4,
+          ),
+        ),
+        SizedBox(height: h * 3),
+        // Progress bar with coin icon
+        _buildProgressBar(context, controller),
+        SizedBox(height: h * 2),
+        // Progress amount
+        Align(
+          alignment: Alignment.centerRight,
+          child: Obx(
+            () => Text(
+              controller.earningsTextRx,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: h * 1.8,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: h * 2),
+        // Motivational text
+        RichText(
+          text: TextSpan(
+            style: TextStyle(color: AppColors.textPrimary, fontSize: h * 1.6),
+            children: [
+              const TextSpan(text: 'You have '),
+              TextSpan(
+                text: '\$${controller.monthlyEarnings.currentEarnings.toInt()}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const TextSpan(
+                text: ' by staying active. Keep it up to earn even more!',
+              ),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildEarnings(BuildContext context, BadgesController controller) {
+  Widget _buildProgressBar(BuildContext context, BadgesController controller) {
     final h = context.heightUnit;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final w = context.widthUnit;
+
+    return Stack(
+      alignment: Alignment.centerRight,
       children: [
-        Text(
-          AppStrings.earningThisMonth,
-          style: TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: h * 2.2,
+        // Background progress bar
+        Container(
+          height: h * 2.5,
+          decoration: BoxDecoration(
+            color: AppColors.trackGrey,
+            borderRadius: BorderRadius.circular(h * 1.25),
           ),
         ),
-        SizedBox(height: h * 2),
+        // Green progress fill
         Container(
-          padding: EdgeInsets.all(h * 2),
+          height: h * 2.5,
+          width: w * 100, // Full width to show 100% completion
           decoration: BoxDecoration(
-            color: AppColors.lightSurface,
-            borderRadius: BorderRadius.circular(h * 1.5),
+            color: AppColors.primaryGreen,
+            borderRadius: BorderRadius.circular(h * 1.25),
           ),
-          child: Column(
-            children: [
-              Stack(
-                alignment: Alignment.centerRight,
-                children: [
-                  Obx(
-                    () => LinearProgressIndicator(
-                      value: controller.earningsProgress,
-                      minHeight: h * 2.5,
-                      backgroundColor: AppColors.trackGrey,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppColors.primaryGreen,
-                      ),
-                      borderRadius: BorderRadius.circular(h * 1.25),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(h * 0.5),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.primaryGreen,
-                        width: 2,
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.attach_money,
-                      color: AppColors.primaryGreen,
-                      size: h * 2.5,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: h * 1),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Obx(
-                  () => Text(
-                    controller.earningsText,
-                    style: TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: h * 1.8,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
+        ),
+        // Golden coin icon at the end
+        Container(
+          padding: EdgeInsets.all(h * 0.3),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFD700), // Golden color
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFD700).withOpacity(0.3),
+                blurRadius: h * 1,
+                spreadRadius: h * 0.5,
               ),
             ],
+          ),
+          child: Icon(
+            Icons.attach_money,
+            color: AppColors.white,
+            size: h * 2.2,
           ),
         ),
       ],
