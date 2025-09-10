@@ -60,11 +60,13 @@ class ProfileView extends StatelessWidget {
                 CircleAvatar(
                   radius: h * 6,
                   backgroundColor: AppColors.primaryGreen,
-                  child: Icon(
-                    Icons.person,
-                    size: h * 8,
-                    color: AppColors.white,
+                  backgroundImage: const AssetImage(
+                    'assets/images/profile.png',
                   ),
+                  onBackgroundImageError: (exception, stackTrace) {
+                    print('Error loading profile image: $exception');
+                  },
+                  child: null,
                 ),
                 SizedBox(width: w * 4),
                 // Name and Username
