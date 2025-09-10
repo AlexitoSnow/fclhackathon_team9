@@ -1,12 +1,10 @@
 import 'package:get/get.dart';
 import 'package:fclhackathon_team9/modules/badges/models/badges_models.dart';
 import 'package:fclhackathon_team9/core/services/wallet_api_service.dart';
-import 'package:fclhackathon_team9/core/services/profile_api_service.dart';
 
 class BadgesController extends GetxController {
   // Services
   final WalletApiService _walletApiService = WalletApiService.instance;
-  final ProfileApiService _profileApiService = ProfileApiService.instance;
 
   // Observable variables
   final RxList<Badge> _lockedBadges = <Badge>[].obs;
