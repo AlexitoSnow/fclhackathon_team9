@@ -312,7 +312,7 @@ class ProfileView extends StatelessWidget {
           ),
           SizedBox(height: h * 3),
           // Progress Bar and Trophy
-          Obx(() => _buildTrophyProgressCard(context, controller)),
+          _buildTrophyProgressCard(context, controller),
         ],
       ),
     );
