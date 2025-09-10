@@ -1,12 +1,16 @@
 import 'package:get/get.dart';
 import 'package:fclhackathon_team9/modules/profile/models/profile_models.dart';
+import 'package:fclhackathon_team9/core/services/profile_api_service.dart';
 
 class ProfileController extends GetxController {
+  // Services
+  final ProfileApiService _apiService = ProfileApiService.instance;
+
   // Observable variables
   final Rx<UserProfile> _userProfile = const UserProfile(
     id: '1',
     name: 'Krystal Patel',
-    username: '@kpatel2001',
+    username: 'kpatel2001',
     bio: 'I want to earn the 10 M step trophy',
     avatarUrl: '',
     steps: 0,
@@ -23,16 +27,21 @@ class ProfileController extends GetxController {
   ).obs;
 
   final RxList<Achievement> _achievements = <Achievement>[].obs;
+  final RxBool _isLoading = false.obs;
+  final RxString _errorMessage = ''.obs;
 
   // Getters
   UserProfile get userProfile => _userProfile.value;
   TrophyProgress get trophyProgress => _trophyProgress.value;
   List<Achievement> get achievements => _achievements;
+  bool get isLoading => _isLoading.value;
+  String get errorMessage => _errorMessage.value;
 
   @override
   void onInit() {
     super.onInit();
     _initializeAchievements();
+    fetchProfile();
   }
 
   @override
@@ -51,6 +60,47 @@ class ProfileController extends GetxController {
         iconPath: '',
       );
     });
+  }
+
+  /// Fetch profile data from the API
+  Future<void> fetchProfile() async {
+    try {
+      setLoading(true);
+      _errorMessage.value = '';
+
+      final response = await _apiService.fetchProfile();
+
+      // Update the profile data with API response
+      _userProfile.value = _userProfile.value.copyWith(
+        name: response.name,
+        username: response.username,
+        bio: response.bio,
+        avatarUrl: response.imgUrl,
+        steps: response.steps.toInt(),
+        followers: response.followers.toInt(),
+        following: response.following.toInt(),
+      );
+
+      // Update trophy progress with new steps
+      _updateTrophyProgress(response.steps.toInt());
+    } catch (e) {
+      _errorMessage.value = e.toString();
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /// Refresh profile data
+  Future<void> refreshProfile() async {
+    await fetchProfile();
+  }
+
+  void setLoading(bool loading) {
+    _isLoading.value = loading;
+  }
+
+  void clearErrorMessage() {
+    _errorMessage.value = '';
   }
 
   void updateUserProfile(UserProfile newProfile) {

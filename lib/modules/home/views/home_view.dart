@@ -16,25 +16,57 @@ class HomeView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTopBar(context, controller),
-            SizedBox(height: h * 4),
-            _buildProgressSection(context, controller),
-            SizedBox(height: h * 4),
-            _buildSectionHeader(context, AppStrings.streak, AppStrings.more),
-            SizedBox(height: h * 1.5),
-            _buildStreakItems(context, controller),
-            SizedBox(height: h * 4),
-            _buildSectionHeader(context, AppStrings.badges, AppStrings.more),
-            SizedBox(height: h * 1.5),
-            _buildBadgesSection(context, controller),
-          ],
-        ),
-      ),
+      body: Obx(() {
+        // Show error snackbar if there's an error
+        if (controller.errorMessage.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.snackbar(
+              'Error',
+              controller.errorMessage,
+              backgroundColor: Colors.red.shade100,
+              colorText: Colors.red.shade800,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
+              borderRadius: 8,
+            );
+          });
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.refreshHomeData,
+          color: AppColors.primaryGreen,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTopBar(context, controller),
+                SizedBox(height: h * 4),
+                _buildProgressSection(context, controller),
+                SizedBox(height: h * 4),
+                _buildSectionHeader(
+                  context,
+                  AppStrings.streak,
+                  AppStrings.more,
+                ),
+                SizedBox(height: h * 1.5),
+                _buildStreakItems(context, controller),
+                SizedBox(height: h * 4),
+                _buildSectionHeader(
+                  context,
+                  AppStrings.badges,
+                  AppStrings.more,
+                ),
+                SizedBox(height: h * 1.5),
+                _buildBadgesSection(context, controller),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 

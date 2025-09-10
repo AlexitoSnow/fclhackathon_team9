@@ -66,22 +66,49 @@ class WalletView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return Scrollbar(
-                interactive: true,
-                thumbVisibility: false,
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight:
-                          constraints.maxHeight -
-                          context.heightUnit *
-                              AppDimensions.bottomNavHeightUnit,
+              return Obx(() {
+                // Show error snackbar if there's an error
+                if (controller.errorMessage.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Get.snackbar(
+                      'Error',
+                      controller.errorMessage,
+                      backgroundColor: Colors.red.shade100,
+                      colorText: Colors.red.shade800,
+                      snackPosition: SnackPosition.TOP,
+                      margin: const EdgeInsets.all(16),
+                      borderRadius: 8,
+                    );
+                  });
+                }
+
+                return RefreshIndicator(
+                  onRefresh: controller.refreshWalletData,
+                  color: AppColors.primaryGreen,
+                  child: Scrollbar(
+                    interactive: true,
+                    thumbVisibility: false,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight:
+                              constraints.maxHeight -
+                              context.heightUnit *
+                                  AppDimensions.bottomNavHeightUnit,
+                        ),
+                        child:
+                            controller.isLoading &&
+                                controller.walletBalance == 42.0
+                            ? _buildLoadingState(context, constraints)
+                            : content,
+                      ),
                     ),
-                    child: content,
                   ),
-                ),
-              );
+                );
+              });
             },
           ),
         ),
@@ -107,25 +134,14 @@ class WalletView extends StatelessWidget {
           color: AppColors.primaryGreen,
           borderRadius: BorderRadius.circular(h * 2),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.attach_money,
-              color: AppColors.primaryDark,
-              size: h * 2.5,
-            ),
-            SizedBox(width: w * 2),
-            Text(
-              controller.balanceText,
+        child: Text(
+              '\$${controller.balanceText}',
               style: TextStyle(
                 color: AppColors.primaryDark,
                 fontWeight: FontWeight.bold,
                 fontSize: h * 2.2,
               ),
             ),
-          ],
-        ),
       ),
     );
   }
@@ -239,6 +255,39 @@ class WalletView extends StatelessWidget {
                 color: AppColors.textSecondary,
                 fontSize: h * 1.8,
                 fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context, BoxConstraints constraints) {
+    final h = context.heightUnit;
+    final topSpacing = h * 8;
+    return SizedBox(
+      height:
+          constraints.maxHeight -
+          context.heightUnit * AppDimensions.bottomNavHeightUnit,
+      child: Column(
+        children: [
+          SizedBox(height: topSpacing),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(color: AppColors.primaryGreen),
+                  SizedBox(height: h * 2.0),
+                  Text(
+                    'Loading wallet data...',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: h * 2.0,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

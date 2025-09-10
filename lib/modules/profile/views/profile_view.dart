@@ -15,30 +15,58 @@ class ProfileView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Header Section
-            _buildProfileHeader(context, controller),
-            //Info Section
-            _buildInfoSection(context, controller),
-            SizedBox(height: h * 4),
-            // Progress to Earn Trophy Section
-            _buildTrophySection(context, controller),
-            SizedBox(height: h * 4),
-            // Friends Section
-            _buildFriendsSection(context, controller),
-            SizedBox(height: h * 4),
-            // Monthly Badges Section
-            _buildMonthlyBadgesSection(context, controller),
-            SizedBox(height: h * 4),
-            // Achievements Section
-            _buildAchievementsSection(context, controller),
-            SizedBox(height: h * 5),
-          ],
-        ),
-      ),
+      body: Obx(() {
+        // Show error snackbar if there's an error
+        if (controller.errorMessage.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.snackbar(
+              'Error',
+              controller.errorMessage,
+              backgroundColor: Colors.red.shade100,
+              colorText: Colors.red.shade800,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
+              borderRadius: 8,
+            );
+          });
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.refreshProfile,
+          color: AppColors.primaryGreen,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            child:
+                controller.isLoading &&
+                    controller.userProfile.name == 'Krystal Patel'
+                ? _buildLoadingState(context)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Profile Header Section
+                      _buildProfileHeader(context, controller),
+                      //Info Section
+                      _buildInfoSection(context, controller),
+                      SizedBox(height: h * 4),
+                      // Progress to Earn Trophy Section
+                      _buildTrophySection(context, controller),
+                      SizedBox(height: h * 4),
+                      // Friends Section
+                      _buildFriendsSection(context, controller),
+                      SizedBox(height: h * 4),
+                      // Monthly Badges Section
+                      _buildMonthlyBadgesSection(context, controller),
+                      SizedBox(height: h * 4),
+                      // Achievements Section
+                      _buildAchievementsSection(context, controller),
+                      SizedBox(height: h * 5),
+                    ],
+                  ),
+          ),
+        );
+      }),
     );
   }
 
@@ -66,8 +94,8 @@ class ProfileView extends StatelessWidget {
                 CircleAvatar(
                   radius: h * 6,
                   backgroundColor: AppColors.primaryGreen,
-                  backgroundImage: const AssetImage(
-                    'assets/images/profile.png',
+                  backgroundImage: NetworkImage(
+                    controller.userProfile.avatarUrl,
                   ),
                   child: null,
                 ),
@@ -117,7 +145,7 @@ class ProfileView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        controller.userProfile.username,
+                        '@${controller.userProfile.username}',
                         style: TextStyle(
                           fontSize: h * 1.8,
                           fontWeight: FontWeight.w500,
@@ -390,7 +418,7 @@ class ProfileView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(h * 2.5),
                   ),
                   child: Text(
-                    '0 Steps',
+                    '${controller.userProfile.steps} Steps',
                     style: TextStyle(
                       color: AppColors.white,
                       fontSize: h * 1.4,
@@ -398,14 +426,12 @@ class ProfileView extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Progress Path - White horizontal track
                 Expanded(
-                  child: Container(
-                    height: h * 3,
-                    decoration: BoxDecoration(
-                      color: AppColors.white, // White track like in image
-                      borderRadius: BorderRadius.circular(h * 3),
-                    ),
+                  child: LinearProgressIndicator(
+                    value: controller.userProfile.steps / 25_000,
+                    minHeight: h * 2.5,
+                    backgroundColor: AppColors.white,
+                    valueColor: AlwaysStoppedAnimation(AppColors.primaryGreen),
                   ),
                 ),
                 // End Point - Trophy
@@ -433,7 +459,7 @@ class ProfileView extends StatelessWidget {
           ),
           // Target Steps below trophy
           Text(
-            '2.5M Steps',
+            '25K Steps',
             style: TextStyle(
               color: const Color(0xFF1A363D), // Dark teal like in image
               fontSize: h,
@@ -616,6 +642,29 @@ class ProfileView extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context) {
+    final h = context.heightUnit;
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.8,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: AppColors.primaryGreen),
+            SizedBox(height: h * 2.0),
+            Text(
+              'Loading profile...',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: h * 2.0,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

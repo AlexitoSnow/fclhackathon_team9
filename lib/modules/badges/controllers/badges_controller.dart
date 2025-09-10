@@ -1,7 +1,13 @@
 import 'package:get/get.dart';
 import 'package:fclhackathon_team9/modules/badges/models/badges_models.dart';
+import 'package:fclhackathon_team9/core/services/wallet_api_service.dart';
+import 'package:fclhackathon_team9/core/services/profile_api_service.dart';
 
 class BadgesController extends GetxController {
+  // Services
+  final WalletApiService _walletApiService = WalletApiService.instance;
+  final ProfileApiService _profileApiService = ProfileApiService.instance;
+
   // Observable variables
   final RxList<Badge> _lockedBadges = <Badge>[].obs;
   final RxList<CalendarDay> _calendarDays = <CalendarDay>[].obs;
@@ -10,17 +16,22 @@ class BadgesController extends GetxController {
     targetEarnings: 42.0,
     progress: 1.0,
   ).obs;
+  final RxBool _isLoading = false.obs;
+  final RxString _errorMessage = ''.obs;
 
   // Getters
   List<Badge> get lockedBadges => _lockedBadges;
   List<CalendarDay> get calendarDays => _calendarDays;
   MonthlyEarnings get monthlyEarnings => _monthlyEarnings.value;
+  bool get isLoading => _isLoading.value;
+  String get errorMessage => _errorMessage.value;
 
   @override
   void onInit() {
     super.onInit();
     _initializeLockedBadges();
     _initializeCalendarDays();
+    fetchBadgesData();
   }
 
   @override
@@ -66,6 +77,39 @@ class BadgesController extends GetxController {
     }
 
     _calendarDays.value = days;
+  }
+
+  /// Fetch badges data from APIs
+  Future<void> fetchBadgesData() async {
+    await _fetchWalletData();
+  }
+
+  /// Fetch wallet data for monthly earnings
+  Future<void> _fetchWalletData() async {
+    try {
+      final response = await _walletApiService.fetchWalletEarnings();
+      updateMonthlyEarnings(response.monthlyEarning, response.monthlyTarget);
+    } catch (e) {
+      // Keep default values
+    }
+  }
+
+  /// Refresh badges data
+  Future<void> refreshBadgesData() async {
+    _isLoading.value = true;
+    _errorMessage.value = '';
+
+    try {
+      await fetchBadgesData();
+    } catch (e) {
+      _errorMessage.value = e.toString();
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  void clearErrorMessage() {
+    _errorMessage.value = '';
   }
 
   void updateMonthlyEarnings(double current, double target) {
