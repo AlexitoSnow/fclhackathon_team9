@@ -55,7 +55,7 @@ class WalletApiService {
       case DioExceptionType.cancel:
         return 'Request was cancelled';
       case DioExceptionType.connectionError:
-        return 'Connection error - please check if the server is running on localhost:8080';
+        return 'Connection error - please check if the server is running';
       case DioExceptionType.unknown:
         return 'Unknown error: ${error.message}';
       default:
