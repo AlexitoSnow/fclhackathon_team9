@@ -11,11 +11,32 @@ dependencies:
     sdk: flutter
   get: ^4.7.2
   dio: ^5.4.0
+  #ICONO
+  flutter_launcher_icons: ^0.14.4
+  #splash
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icono.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: false
+
+flutter_native_splash:
+  color: "#ffffff"
+  background_image: "assets/images/icono.png"
+  image: "assets/images/icono.png"
 
 flutter:
   uses-material-design: true
@@ -23,3 +44,4 @@ flutter:
   assets:
     - assets/images/profile.png
     - assets/images/trophy.png
+    - assets/images/icono.png
