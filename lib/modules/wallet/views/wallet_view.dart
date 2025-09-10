@@ -28,7 +28,7 @@ class WalletView extends StatelessWidget {
         Row(
           children: [
             Expanded(child: Obx(() => _buildBalancePill(context, controller))),
-            SizedBox(width: w * 4),
+            SizedBox(width: w * 55),
             _buildNotificationBell(context, controller),
           ],
         ),
@@ -44,7 +44,7 @@ class WalletView extends StatelessWidget {
         ),
         SizedBox(height: h * 2),
         Obx(() => _buildTotalValueCard(context, controller)),
-        SizedBox(height: h * 6),
+        SizedBox(height: h * 2),
         // Earning this month section
         Text(
           AppStrings.earningThisMonth,
@@ -166,7 +166,7 @@ class WalletView extends StatelessWidget {
     final h = context.heightUnit;
 
     return Container(
-      padding: EdgeInsets.all(h * 3),
+      padding: EdgeInsets.only(bottom: h, left: 65, right: 65, top: h),
       decoration: BoxDecoration(
         color: AppColors.lightSurface,
         borderRadius: BorderRadius.circular(h * 2),
@@ -182,7 +182,7 @@ class WalletView extends StatelessWidget {
               fontSize: h * 4.5,
             ),
           ),
-          SizedBox(height: h * 1),
+          SizedBox(height: h),
           Text(
             AppStrings.claimAtEnd,
             style: TextStyle(color: AppColors.textSecondary, fontSize: h * 1.8),
@@ -196,7 +196,7 @@ class WalletView extends StatelessWidget {
     final h = context.heightUnit;
 
     return Container(
-      padding: EdgeInsets.all(h * 3),
+      padding: EdgeInsets.all(h),
       decoration: BoxDecoration(
         color: AppColors.lightSurface,
         borderRadius: BorderRadius.circular(h * 2),

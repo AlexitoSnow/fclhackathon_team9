@@ -21,6 +21,8 @@ class ProfileView extends StatelessWidget {
           children: [
             // Profile Header Section
             _buildProfileHeader(context, controller),
+            //Info Section
+            _buildInfoSection(context, controller),
             SizedBox(height: h * 4),
             // Progress to Earn Trophy Section
             _buildTrophySection(context, controller),
@@ -47,8 +49,12 @@ class ProfileView extends StatelessWidget {
     final h = context.heightUnit;
     final w = context.widthUnit;
 
-    return Padding(
+    return Container(
       padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
+      decoration: BoxDecoration(
+        color: AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(h),
+      ),
       child: Obx(
         () => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,9 +69,6 @@ class ProfileView extends StatelessWidget {
                   backgroundImage: const AssetImage(
                     'assets/images/profile.png',
                   ),
-                  onBackgroundImageError: (exception, stackTrace) {
-                    print('Error loading profile image: $exception');
-                  },
                   child: null,
                 ),
                 SizedBox(width: w * 4),
@@ -82,31 +85,65 @@ class ProfileView extends StatelessWidget {
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: h * 0.5),
-                      Text(
-                        controller.userProfile.username,
-                        style: TextStyle(
-                          fontSize: h * 1.8,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ],
             ),
             SizedBox(height: h * 2),
-            // Bio
-            Text(
-              controller.userProfile.bio,
-              style: TextStyle(fontSize: h * 1.8, color: AppColors.textPrimary),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(BuildContext context, ProfileController controller) {
+    final h = context.heightUnit;
+    final w = context.widthUnit;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
+
+      child: Obx(
+        () => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Profile Picture and Basic Info
+            Row(
+              children: [
+                // Name and Username
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        controller.userProfile.username,
+                        style: TextStyle(
+                          fontSize: h * 1.8,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.black,
+                        ),
+                      ),
+                      // Bio
+                      Text(
+                        controller.userProfile.bio,
+                        style: TextStyle(
+                          fontSize: h * 1.8,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      SizedBox(height: h * 3),
+                      // Stats Row
+                      _buildStatsRow(context, controller),
+                      SizedBox(height: h * 3),
+                      // Action Buttons
+                      _buildActionButtons(context, controller),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: h * 3),
-            // Stats Row
-            _buildStatsRow(context, controller),
-            SizedBox(height: h * 3),
-            // Action Buttons
-            _buildActionButtons(context, controller),
+            SizedBox(height: h * 2),
           ],
         ),
       ),
@@ -359,31 +396,19 @@ class ProfileView extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: w * 1),
                 // Progress Path - White horizontal track
                 Expanded(
                   child: Container(
-                    height: h * 0.6,
+                    height: h * 3,
                     decoration: BoxDecoration(
                       color: AppColors.white, // White track like in image
-                      borderRadius: BorderRadius.circular(h * 0.3),
+                      borderRadius: BorderRadius.circular(h * 3),
                     ),
                   ),
                 ),
-                SizedBox(width: w * 1),
                 // End Point - Trophy
                 _buildTrophyIcon(context, controller),
               ],
-            ),
-          ),
-          SizedBox(height: h * 1),
-          // Target Steps below trophy
-          Text(
-            '2.5M Steps',
-            style: TextStyle(
-              color: const Color(0xFF1A363D), // Dark teal like in image
-              fontSize: h * 1.6,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -394,11 +419,27 @@ class ProfileView extends StatelessWidget {
   Widget _buildTrophyIcon(BuildContext context, ProfileController controller) {
     final h = context.heightUnit;
 
-    return Image.asset(
-      'assets/images/trophy.png',
-      width: h * 6,
-      height: h * 6,
-      fit: BoxFit.contain,
+    return Container(
+      padding: EdgeInsets.only(left: h, top: h * 3),
+      child: Column(
+        children: [
+          Image.asset(
+            'assets/images/trophy.png',
+            width: h * 8,
+            height: h * 8,
+            fit: BoxFit.contain,
+          ),
+          // Target Steps below trophy
+          Text(
+            '2.5M Steps',
+            style: TextStyle(
+              color: const Color(0xFF1A363D), // Dark teal like in image
+              fontSize: h,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
