@@ -325,75 +325,154 @@ class ProfileView extends StatelessWidget {
     final h = context.heightUnit;
     final w = context.widthUnit;
 
-    return Row(
-      children: [
-        // Progress Pill
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: w * 4, vertical: h * 1.5),
-          decoration: BoxDecoration(
-            color: AppColors.primaryDark,
-            borderRadius: BorderRadius.circular(h * 2),
-          ),
-          child: Text(
-            controller.trophyStepsText,
-            style: TextStyle(
-              color: AppColors.white,
-              fontSize: h * 1.8,
-              fontWeight: FontWeight.bold,
+    return Container(
+      height: h * 20,
+      padding: EdgeInsets.all(h * 2),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8EDEE), // Light grey background like in image
+        borderRadius: BorderRadius.circular(h * 2.5),
+      ),
+      child: Column(
+        children: [
+          // Progress Route - Horizontal white track
+          Expanded(
+            child: Row(
+              children: [
+                // Start Point - Current Steps (0 Steps pill)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: w * 2.5,
+                    vertical: h * 1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1A363D), // Dark teal like in image
+                    borderRadius: BorderRadius.circular(h * 2.5),
+                  ),
+                  child: Text(
+                    '0 Steps',
+                    style: TextStyle(
+                      color: AppColors.white,
+                      fontSize: h * 1.4,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                SizedBox(width: w * 1),
+                // Progress Path - White horizontal track
+                Expanded(
+                  child: Container(
+                    height: h * 0.6,
+                    decoration: BoxDecoration(
+                      color: AppColors.white, // White track like in image
+                      borderRadius: BorderRadius.circular(h * 0.3),
+                    ),
+                  ),
+                ),
+                SizedBox(width: w * 1),
+                // End Point - Trophy
+                _buildTrophyIcon(context, controller),
+              ],
             ),
           ),
-        ),
-        SizedBox(width: w * 4),
-        // Trophy Image and Info
-        Expanded(
+          SizedBox(height: h * 1),
+          // Target Steps below trophy
+          Text(
+            '2.5M Steps',
+            style: TextStyle(
+              color: const Color(0xFF1A363D), // Dark teal like in image
+              fontSize: h * 1.6,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrophyIcon(BuildContext context, ProfileController controller) {
+    final h = context.heightUnit;
+
+    return Column(
+      children: [
+        // Trophy Top - Dark circular metallic part
+        Container(
+          width: h * 5,
+          height: h * 5,
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C3E50), // Dark metallic like in image
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: h * 0.8,
+                offset: Offset(0, h * 0.3),
+              ),
+            ],
+          ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Trophy Icon
-              Container(
-                width: h * 8,
-                height: h * 8,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFCD7F32), // Bronze color
-                  borderRadius: BorderRadius.circular(h * 1),
-                ),
-                child: Icon(
-                  Icons.emoji_events,
+              Text(
+                'Bronze Stage',
+                style: TextStyle(
                   color: AppColors.white,
-                  size: h * 5,
-                ),
-              ),
-              SizedBox(height: h * 1),
-              // Trophy Info
-              Text(
-                controller.trophyProgress.stage,
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: h * 1.6,
+                  fontSize: h * 0.9,
                   fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
               Text(
-                controller.trophyProgress.stageDescription,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: h * 1.4,
-                ),
+                'Complete 2.5M Steps',
+                style: TextStyle(color: AppColors.white, fontSize: h * 0.7),
+                textAlign: TextAlign.center,
               ),
-              Text(
-                controller.userProfile.name,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: h * 1.4,
-                ),
+            ],
+          ),
+        ),
+        SizedBox(height: h * 0.2),
+        // Trophy Base - Wooden base with metallic plaque
+        Container(
+          width: h * 4,
+          height: h * 1.8,
+          decoration: BoxDecoration(
+            color: const Color(0xFF8B4513), // Brown wood base
+            borderRadius: BorderRadius.circular(h * 0.3),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: h * 0.5,
+                offset: Offset(0, h * 0.2),
               ),
-              SizedBox(height: h * 0.5),
-              Text(
-                controller.trophyProgress.stageDescription,
-                style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: h * 1.6,
-                  fontWeight: FontWeight.bold,
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Metallic plaque on front
+              Positioned(
+                top: h * 0.2,
+                left: h * 0.3,
+                right: h * 0.3,
+                child: Container(
+                  height: h * 1.2,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFCD7F32), // Bronze metallic
+                    borderRadius: BorderRadius.circular(h * 0.2),
+                    border: Border.all(
+                      color: const Color(0xFFB8860B), // Gold border
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Krystal Patel',
+                      style: TextStyle(
+                        color: AppColors.white,
+                        fontSize: h * 0.7,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
               ),
             ],
