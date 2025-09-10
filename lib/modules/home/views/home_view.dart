@@ -227,11 +227,13 @@ class HomeView extends StatelessWidget {
     return Obx(
       () => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(6, (index) {
-          final dayNumber = (index + 1).toString().padLeft(2, '0');
-          final isCompleted = index == 0; // First day is completed
-          return _buildStreakCard(context, dayNumber, isCompleted);
-        }),
+        children: controller.streakDays.map((streakDay) {
+          return _buildStreakCard(
+            context,
+            streakDay.day,
+            streakDay.isCompleted,
+          );
+        }).toList(),
       ),
     );
   }
