@@ -246,7 +246,7 @@ class BadgesView extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFD700).withOpacity(0.3),
+                color: const Color(0xFFFFD700).withValues(alpha: 0.3),
                 blurRadius: h * 1,
                 spreadRadius: h * 0.5,
               ),
