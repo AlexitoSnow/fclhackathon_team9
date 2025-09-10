@@ -16,22 +16,46 @@ class BadgesView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header section with locked badges
-            _buildHeaderSection(context, controller),
-            SizedBox(height: h * 4),
-            // Calendar section
-            _buildCalendarSection(context, controller),
-            SizedBox(height: h * 4),
-            // Earnings section
-            _buildEarningsSection(context, controller),
-          ],
-        ),
-      ),
+      body: Obx(() {
+        // Show error snackbar if there's an error
+        if (controller.errorMessage.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.snackbar(
+              'Error',
+              controller.errorMessage,
+              backgroundColor: Colors.red.shade100,
+              colorText: Colors.red.shade800,
+              snackPosition: SnackPosition.TOP,
+              margin: const EdgeInsets.all(16),
+              borderRadius: 8,
+            );
+          });
+        }
+
+        return RefreshIndicator(
+          onRefresh: controller.refreshBadgesData,
+          color: AppColors.primaryGreen,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics(),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: w * 5, vertical: h * 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header section with locked badges
+                _buildHeaderSection(context, controller),
+                SizedBox(height: h * 4),
+                // Calendar section
+                _buildCalendarSection(context, controller),
+                SizedBox(height: h * 4),
+                // Earnings section
+                _buildEarningsSection(context, controller),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 
