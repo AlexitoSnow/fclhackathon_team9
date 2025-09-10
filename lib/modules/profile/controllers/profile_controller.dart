@@ -1,66 +1,120 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fclhackathon_team9/modules/profile/models/user_profile.dart';
+import 'package:fclhackathon_team9/core/constants/app_strings.dart';
+import 'package:fclhackathon_team9/modules/profile/models/profile_models.dart';
 
 class ProfileController extends GetxController {
-  final nameCtrl = TextEditingController(text: 'Sophia');
-  final heightCtrl = TextEditingController(text: '157 cm');
-  final weightCtrl = TextEditingController(text: '40 Kg');
-
-  final selectedGender = Gender.female.obs;
-  final isSaving = false.obs;
-
-  final _profile = const UserProfile(
-    name: 'Sophia',
-    heightCm: 157,
-    weightKg: 40,
-    gender: Gender.female,
+  // Observable variables
+  final Rx<UserProfile> _userProfile = const UserProfile(
+    id: '1',
+    name: 'Krystal Patel',
+    username: '@kpatel2001',
+    bio: 'I want to earn the 10 M step trophy',
+    avatarUrl: '',
+    steps: 0,
+    followers: 0,
+    following: 0,
+    goal: '10 M step trophy',
   ).obs;
 
-  UserProfile get profile => _profile.value;
+  final Rx<TrophyProgress> _trophyProgress = const TrophyProgress(
+    currentSteps: 0,
+    targetSteps: 2500000, // 2.5M steps
+    stage: 'Bronze Stage',
+    stageDescription: '2.5M Steps',
+  ).obs;
 
-  void selectGender(Gender g) {
-    selectedGender.value = g;
-  }
+  final RxList<Achievement> _achievements = <Achievement>[].obs;
 
-  Future<void> save() async {
-    final parsed = _parseInputs();
-    if (parsed == null) {
-      Get.snackbar('Save Changes', 'Please complete all fields with valid values', snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-    isSaving.value = true;
-    await Future<void>.delayed(const Duration(milliseconds: 350));
-    _profile.value = _profile.value.copyWith(
-      name: parsed.$1,
-      heightCm: parsed.$2,
-      weightKg: parsed.$3,
-      gender: selectedGender.value,
-    );
-    isSaving.value = false;
-    Get.snackbar('Save Changes', 'Profile updated successfully', snackPosition: SnackPosition.BOTTOM);
-  }
+  // Getters
+  UserProfile get userProfile => _userProfile.value;
+  TrophyProgress get trophyProgress => _trophyProgress.value;
+  List<Achievement> get achievements => _achievements;
 
-  (String, double, double)? _parseInputs() {
-    final name = nameCtrl.text.trim();
-    if (name.isEmpty) return null;
-    final h = _extractNumber(heightCtrl.text);
-    final w = _extractNumber(weightCtrl.text);
-    if (h == null || w == null) return null;
-    if (h <= 0 || w <= 0) return null;
-    return (name, h, w);
-  }
-
-  double? _extractNumber(String input) {
-    final cleaned = input.replaceAll(RegExp('[^0-9\.]'), '');
-    return double.tryParse(cleaned);
+  @override
+  void onInit() {
+    super.onInit();
+    _initializeAchievements();
   }
 
   @override
   void onClose() {
-    nameCtrl.dispose();
-    heightCtrl.dispose();
-    weightCtrl.dispose();
+    // Clean up resources if needed
     super.onClose();
   }
+
+  void _initializeAchievements() {
+    _achievements.value = List.generate(4, (index) {
+      return Achievement(
+        id: 'achievement_$index',
+        name: 'Achievement ${index + 1}',
+        description: 'Complete challenges to unlock',
+        isUnlocked: false,
+        iconPath: '',
+      );
+    });
+  }
+
+  void updateUserProfile(UserProfile newProfile) {
+    _userProfile.value = newProfile;
+  }
+
+  void updateSteps(int steps) {
+    _userProfile.value = _userProfile.value.copyWith(steps: steps);
+    _updateTrophyProgress(steps);
+  }
+
+  void _updateTrophyProgress(int currentSteps) {
+    _trophyProgress.value = _trophyProgress.value.copyWith(
+      currentSteps: currentSteps,
+    );
+  }
+
+  void updateFollowers(int followers) {
+    _userProfile.value = _userProfile.value.copyWith(followers: followers);
+  }
+
+  void updateFollowing(int following) {
+    _userProfile.value = _userProfile.value.copyWith(following: following);
+  }
+
+  void updateBio(String bio) {
+    _userProfile.value = _userProfile.value.copyWith(bio: bio);
+  }
+
+  void updateGoal(String goal) {
+    _userProfile.value = _userProfile.value.copyWith(goal: goal);
+  }
+
+  void unlockAchievement(String achievementId) {
+    final index = _achievements.indexWhere(
+      (achievement) => achievement.id == achievementId,
+    );
+    if (index != -1) {
+      _achievements[index] = _achievements[index].copyWith(isUnlocked: true);
+      _achievements.refresh();
+    }
+  }
+
+  void editProfile() {
+    // Implement profile editing logic
+    // This could navigate to an edit profile screen
+  }
+
+  void shareProfile() {
+    // Implement profile sharing logic
+    // This could open a share dialog
+  }
+
+  void addFriend() {
+    // Implement add friend logic
+    // This could open a friend search or QR scanner
+  }
+
+  String get stepsText => '${_userProfile.value.steps} ${AppStrings.stepsGoal}';
+  String get followersText =>
+      '${_userProfile.value.followers} ${AppStrings.followers}';
+  String get followingText =>
+      '${_userProfile.value.following} ${AppStrings.following}';
+  String get trophyStepsText =>
+      '${_trophyProgress.value.currentSteps} ${AppStrings.stepsGoal}';
 }

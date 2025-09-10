@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:fclhackathon_team9/core/constants/app_colors.dart';
+import 'package:fclhackathon_team9/core/constants/app_strings.dart';
+import 'package:fclhackathon_team9/modules/home/controllers/home_controller.dart';
 import 'package:fclhackathon_team9/utils/extensions/context_extensions.dart';
 import 'dart:math' as math;
 
@@ -8,6 +11,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final HomeController controller = Get.put(HomeController());
     final h = context.heightUnit;
     final w = context.widthUnit;
 
@@ -18,15 +22,15 @@ class HomeView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildTopBar(context),
+            _buildTopBar(context, controller),
             SizedBox(height: h * 4),
-            _buildProgressSection(context),
+            _buildProgressSection(context, controller),
             SizedBox(height: h * 4),
-            _buildSectionHeader(context, 'Streak', 'More'),
+            _buildSectionHeader(context, AppStrings.streak, AppStrings.more),
             SizedBox(height: h * 1.5),
-            _buildStreakItems(context),
+            _buildStreakItems(context, controller),
             SizedBox(height: h * 4),
-            _buildSectionHeader(context, 'Badges', 'More'),
+            _buildSectionHeader(context, AppStrings.badges, AppStrings.more),
             SizedBox(height: h * 1.5),
             // Placeholder for Badges content
           ],
@@ -35,7 +39,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildTopBar(BuildContext context) {
+  Widget _buildTopBar(BuildContext context, HomeController controller) {
     final h = context.heightUnit;
     final w = context.widthUnit;
     return Padding(
@@ -57,12 +61,14 @@ class HomeView extends StatelessWidget {
                   size: h * 2.5,
                 ),
                 SizedBox(width: w * 1),
-                Text(
-                  '42',
-                  style: TextStyle(
-                    color: AppColors.primaryDark,
-                    fontWeight: FontWeight.bold,
-                    fontSize: h * 2,
+                Obx(
+                  () => Text(
+                    controller.balanceText,
+                    style: TextStyle(
+                      color: AppColors.primaryDark,
+                      fontWeight: FontWeight.bold,
+                      fontSize: h * 2,
+                    ),
                   ),
                 ),
               ],
@@ -85,10 +91,12 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressSection(BuildContext context) {
+  Widget _buildProgressSection(
+    BuildContext context,
+    HomeController controller,
+  ) {
     final h = context.heightUnit;
     final w = context.widthUnit;
-    const progress = 0.0;
 
     return Row(
       children: [
@@ -109,61 +117,73 @@ class HomeView extends StatelessWidget {
               ),
               Transform.rotate(
                 angle: math.pi / 2,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  strokeWidth: 12,
-                  backgroundColor: AppColors.transparent,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppColors.primaryGreen,
+                child: Obx(
+                  () => CircularProgressIndicator(
+                    value: controller.progress,
+                    strokeWidth: 12,
+                    backgroundColor: AppColors.transparent,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.primaryGreen,
+                    ),
                   ),
                 ),
               ),
               Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      '${(progress * 100).toInt()}%',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: h * 4,
-                        fontWeight: FontWeight.bold,
+                child: Obx(
+                  () => Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        controller.progressPercentage,
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: h * 4,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Completed',
-                      style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: h * 2,
+                      Text(
+                        AppStrings.completed,
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                          fontSize: h * 2,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
         ),
         SizedBox(width: w * 5),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Today',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: h * 2),
-            ),
-            Text(
-              '0 steps',
-              style: TextStyle(
-                color: AppColors.primaryGreen,
-                fontSize: h * 2.5,
-                fontWeight: FontWeight.bold,
+        Obx(
+          () => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                AppStrings.today,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: h * 2,
+                ),
               ),
-            ),
-            Text(
-              'Goal 5000 steps',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: h * 2),
-            ),
-          ],
+              Text(
+                controller.stepsText,
+                style: TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontSize: h * 2.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '${AppStrings.goal} ${controller.goalSteps} ${AppStrings.steps}',
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: h * 2,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -198,31 +218,32 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildStreakItems(BuildContext context) {
-    final w = context.widthUnit;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(6, (index) {
-        return _buildStreakCard(context, '${index + 1}'.padLeft(2, '0'));
-      }),
+  Widget _buildStreakItems(BuildContext context, HomeController controller) {
+    return Obx(
+      () => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: controller.streakDays.map((day) {
+          return _buildStreakCard(context, day.day, day.isCompleted);
+        }).toList(),
+      ),
     );
   }
 
-  Widget _buildStreakCard(BuildContext context, String day) {
+  Widget _buildStreakCard(BuildContext context, String day, bool isCompleted) {
     final h = context.heightUnit;
     final w = context.widthUnit;
     return Container(
       width: w * 12,
       height: h * 7,
       decoration: BoxDecoration(
-        color: AppColors.lightSurface,
+        color: isCompleted ? AppColors.primaryGreen : AppColors.lightSurface,
         borderRadius: BorderRadius.circular(h * 1.5),
       ),
       child: Center(
         child: Text(
           day,
           style: TextStyle(
-            color: AppColors.textPrimary,
+            color: isCompleted ? AppColors.primaryDark : AppColors.textPrimary,
             fontSize: h * 2.2,
             fontWeight: FontWeight.bold,
           ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:fclhackathon_team9/core/constants/app_colors.dart';
+import 'package:fclhackathon_team9/core/constants/app_strings.dart';
+import 'package:fclhackathon_team9/modules/badges/controllers/badges_controller.dart';
 import 'package:fclhackathon_team9/utils/extensions/context_extensions.dart';
 
 class BadgesView extends StatelessWidget {
@@ -7,6 +10,7 @@ class BadgesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final BadgesController controller = Get.put(BadgesController());
     final h = context.heightUnit;
     final w = context.widthUnit;
 
@@ -18,7 +22,7 @@ class BadgesView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Streak',
+              AppStrings.streak,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.bold,
@@ -26,18 +30,18 @@ class BadgesView extends StatelessWidget {
               ),
             ),
             SizedBox(height: h * 2),
-            _buildLockedBadges(context),
+            _buildLockedBadges(context, controller),
             SizedBox(height: h * 3),
-            _buildCalendar(context),
+            _buildCalendar(context, controller),
             SizedBox(height: h * 3),
-            _buildEarnings(context),
+            _buildEarnings(context, controller),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLockedBadges(BuildContext context) {
+  Widget _buildLockedBadges(BuildContext context, BadgesController controller) {
     final h = context.heightUnit;
     final w = context.widthUnit;
     return Container(
@@ -46,17 +50,18 @@ class BadgesView extends StatelessWidget {
         color: AppColors.lightSurface,
         borderRadius: BorderRadius.circular(h * 1.5),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildLockedBadgeItem(context),
-          _buildLockedBadgeItem(context),
-        ],
+      child: Obx(
+        () => Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: controller.lockedBadges.map((badge) {
+            return _buildLockedBadgeItem(context, badge.isUnlocked);
+          }).toList(),
+        ),
       ),
     );
   }
 
-  Widget _buildLockedBadgeItem(BuildContext context) {
+  Widget _buildLockedBadgeItem(BuildContext context, bool isUnlocked) {
     final h = context.heightUnit;
     final w = context.widthUnit;
     return Container(
@@ -66,24 +71,36 @@ class BadgesView extends StatelessWidget {
         color: AppColors.white,
         borderRadius: BorderRadius.circular(h * 1.5),
         border: Border.all(
-          color: AppColors.trackGrey,
+          color: isUnlocked ? AppColors.primaryGreen : AppColors.trackGrey,
           style: BorderStyle.solid,
         ),
       ),
-      child: Icon(Icons.lock, color: AppColors.trackGrey, size: h * 5),
+      child: Icon(
+        isUnlocked ? Icons.check : Icons.lock,
+        color: isUnlocked ? AppColors.primaryGreen : AppColors.trackGrey,
+        size: h * 5,
+      ),
     );
   }
 
-  Widget _buildCalendar(BuildContext context) {
+  Widget _buildCalendar(BuildContext context, BadgesController controller) {
     final h = context.heightUnit;
     final w = context.widthUnit;
-    final daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    final daysOfWeek = [
+      AppStrings.sun,
+      AppStrings.mon,
+      AppStrings.tue,
+      AppStrings.wed,
+      AppStrings.thu,
+      AppStrings.fri,
+      AppStrings.sat,
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'September',
+          AppStrings.september,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -107,37 +124,49 @@ class BadgesView extends StatelessWidget {
               .toList(),
         ),
         SizedBox(height: h * 1.5),
-        // Generates 30 days for September, starting on a Friday (index 5)
-        Wrap(
-          spacing: w * 4.5,
-          runSpacing: h * 1.5,
-          children: List.generate(35, (index) {
-            if (index < 5 || index > 34) {
-              // Placeholder for empty days
-              return SizedBox(width: h * 3.5, height: h * 3.5);
-            }
-            return Container(
-              width: h * 3.5,
-              height: h * 3.5,
-              decoration: const BoxDecoration(
-                color: Color(0xFFFDDDBB), // Light orange color from image
-                shape: BoxShape.circle,
-              ),
-            );
-          }),
+        Obx(
+          () => Wrap(
+            spacing: w * 4.5,
+            runSpacing: h * 1.5,
+            children: controller.calendarDays.map((day) {
+              if (!day.isCurrentMonth) {
+                // Empty days at the beginning and end
+                return SizedBox(width: h * 3.5, height: h * 3.5);
+              }
+
+              return Container(
+                width: h * 3.5,
+                height: h * 3.5,
+                decoration: BoxDecoration(
+                  color: day.isCompleted
+                      ? AppColors.primaryGreen
+                      : const Color(
+                          0xFFFDDDBB,
+                        ), // Light orange color from image
+                  shape: BoxShape.circle,
+                ),
+                child: day.isCompleted
+                    ? Icon(
+                        Icons.check,
+                        color: AppColors.primaryDark,
+                        size: h * 2,
+                      )
+                    : null,
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildEarnings(BuildContext context) {
+  Widget _buildEarnings(BuildContext context, BadgesController controller) {
     final h = context.heightUnit;
-    final w = context.widthUnit;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Earning this month',
+          AppStrings.earningThisMonth,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
@@ -156,14 +185,16 @@ class BadgesView extends StatelessWidget {
               Stack(
                 alignment: Alignment.centerRight,
                 children: [
-                  LinearProgressIndicator(
-                    value: 1.0, // Full progress
-                    minHeight: h * 2.5,
-                    backgroundColor: AppColors.trackGrey,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppColors.primaryGreen,
+                  Obx(
+                    () => LinearProgressIndicator(
+                      value: controller.earningsProgress,
+                      minHeight: h * 2.5,
+                      backgroundColor: AppColors.trackGrey,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.primaryGreen,
+                      ),
+                      borderRadius: BorderRadius.circular(h * 1.25),
                     ),
-                    borderRadius: BorderRadius.circular(h * 1.25),
                   ),
                   Container(
                     padding: EdgeInsets.all(h * 0.5),
@@ -186,12 +217,14 @@ class BadgesView extends StatelessWidget {
               SizedBox(height: h * 1),
               Align(
                 alignment: Alignment.centerRight,
-                child: Text(
-                  '\$42 / \$42',
-                  style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: h * 1.8,
-                    fontWeight: FontWeight.w500,
+                child: Obx(
+                  () => Text(
+                    controller.earningsText,
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: h * 1.8,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
